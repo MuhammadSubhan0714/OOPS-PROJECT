@@ -113,6 +113,7 @@ class Player{
             coins = 500;
             towerHealth = 1000;
         }
+
         void addCard(Card* c){
             collection.push_back(c);        //Adding element(Card) at runtime
         }
@@ -156,6 +157,15 @@ class Player{
         Deck& getDeck(){
             return deck;
         }
+
+        bool operator>(Player &p) {
+            if (trophies > p.getTrophies()) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
         friend void comparePlayers(Player& p1, Player& p2);
 };
 void comparePlayers(Player& p1, Player& p2){
@@ -181,4 +191,10 @@ class Shop{
             p.spendCoins(100);
             return shopCards[position];     //Returns Card at this specified position
         }
+};
+
+int main() {
+    Player p1("Ahmed"), p2("Ali");
+    p1.addTrophies(4);
+    p1 > p2;
 }
