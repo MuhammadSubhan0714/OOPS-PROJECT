@@ -134,6 +134,20 @@ class Player{
                 level++;
             }
         }
+        string getRank(){
+            if (trophies < 100){
+                return "Bronze";
+            }
+            else if(trophies < 300){
+                return "Silver";
+            }
+            else if(trophies < 600){
+                return "Gold";
+            }
+            else {
+                return "Diamond";
+            }
+        }
         string getName() {
             return name;
         }
