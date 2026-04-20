@@ -55,28 +55,17 @@ class TroopCard: public Card{
             return false;
         }
 };
-void TroopCard::play(Player& p){
-    cout << name << " is attacking tower with damage of " << damage << endl;
-    p.takeDamage(damage);
-}
 class SpellCard: public Card{
     int spellDamage;
     public:
         SpellCard(string n, int c, int d): Card(n,c), spellDamage(d){}
         void play(Player& p) override;
 };
-void SpellCard::play(Player& p){
-    cout << name << " Struck tower with damage of " << spellDamage << endl;
-    p.takeDamage(spellDamage);
-}
 class BuildingCard: public Card{
     public:
         BuildingCard(string n, int c): Card(n,c){}
         void play(Player& p) override;
 };
-void BuildingCard::play(Player& p){
-    cout << name << " building deployed" << endl;
-}
 class Deck{
     vector<Card*> cards;
     public:
@@ -106,13 +95,7 @@ class Player{
     Deck deck;      //Composition applied
     vector<Card*> collection;       //Vector of datatype Card pointer
     public:
-        Player(string n){
-            name =n;
-            level = 1;
-            trophies = 0;
-            coins = 500;
-            towerHealth = 1000;
-        }
+        Player(string n) : name(n), level(1), trophies(0), coins(500), towerHealth(1000){}
 
         void addCard(Card* c){
             collection.push_back(c);        //Adding element(Card) at runtime
@@ -175,6 +158,17 @@ void comparePlayers(Player& p1, Player& p2){
         cout << p2.getName() << " is ranked higher" << endl;
     }
 }
+void TroopCard::play(Player& p){
+    cout << name << " is attacking tower with damage of " << damage << endl;
+    p.takeDamage(damage);
+}
+void SpellCard::play(Player& p){
+    cout << name << " Struck tower with damage of " << spellDamage << endl;
+    p.takeDamage(spellDamage);
+}
+void BuildingCard::play(Player& p){
+    cout << p.getName() << " building deployed" << endl;
+}
 class Shop{
     vector<Card*> shopCards;
     public:
@@ -187,9 +181,13 @@ class Shop{
                 cout << i << " " << shopCards[i]->getName() << " (100 coins)" << endl;  //Fixed price for all cards at the shop
             }
         }
-        Card* buy(int position, Player& p){
+       Card* buy(size_t position, Player& p){
             p.spendCoins(100);
-            return shopCards[position];     //Returns Card at this specified position
+            if (position < shopCards.size()) {
+                return shopCards[position];     //Returns Card at this specified position
+            }
+            cout << "Invalid position!" << endl;
+            return nullptr;
         }
 };
 
