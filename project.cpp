@@ -223,6 +223,20 @@ class ClanGame{
             return reward;
         }
 };
+class GameEngine{
+    int battleField[5][5];
+    public:
+        void battle(Player& p1, Player& p2){
+            cout << "Battle Start!" << endl;
+            Card* c = p1.getDeck().drawCard();  //Drawing a card from Player 1s deck
+            if (c != nullptr){
+                c->play(p2);        //Attacks the other Player
+            }
+            if (p2.getHealth() <= 0){       //If Other Players health has been depleted then the current player has won
+                cout << p1.getName() << " wins." << endl;
+            }
+        }
+};
 int main() {
     Player p1("Ahmed"), p2("Ali");
     p1.addTrophies(4);
