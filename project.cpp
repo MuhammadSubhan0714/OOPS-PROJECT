@@ -190,7 +190,25 @@ class Shop{
             return nullptr;
         }
 };
-
+class ClanGame{
+    int goal;
+    int progress;
+    int reward;
+    public:
+        ClanGame(int g, int r): goal(g), progress(0), reward(r){}
+        void update(int val){
+            progress += val;  //Certain Progress value increased
+        }
+        bool completed(){
+            if (progress >= goal){
+                return true;    //Checks whether goal has reached or not
+            }
+            return false;
+        }
+        int getReward(){
+            return reward;
+        }
+};
 int main() {
     Player p1("Ahmed"), p2("Ali");
     p1.addTrophies(4);
