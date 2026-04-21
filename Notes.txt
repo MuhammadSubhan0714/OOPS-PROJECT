@@ -1,0 +1,30 @@
+----------- SAVED DATA ----------------
+Trophies
+coins
+level
+Collection (The cards a player has unlocked)
+
+----------- DERIVATIVE CLASSES ------------
+
+Card (Abstract)
+Ranged, Flying ( DERIVATE CARD, vritual CARD)
+
+
+-------------- BIGGEST CLASSES --------------
+
+-- MAIN CLASSES
+Player, Card, Items, Shop, Deck
+-- SEPERATE DERIVED FILES
+-- TROOPS
+-- RANGED UNITS, FLYING UNITS
+-- ITEMS FILE
+
+----------- SEPERATE DATA FILES ------------
+
+cap = 100;
+random gen ,0, 99
+4
+
+Collection[4] = Troop;
+Troop
+
