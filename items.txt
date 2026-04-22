@@ -1,0 +1,10 @@
+Fireball,SPELL,4,150,Deals area damage
+Freeze,SPELL,4,0,Freezes enemies for 3 seconds
+Poison,SPELL,4,100,Damage over time
+Heal,SPELL,3,120,Restores troop health
+Rage,SPELL,2,0,Increases speed and attack
+Lightning,SPELL,6,300,High damage to strongest units
+Clone,SPELL,3,0,Clones troops with low health
+Shield,ITEM,2,100,Adds temporary shield
+Potion,ITEM,2,80,Restores player tower health
+ElixirBoost,ITEM,3,2,Increases elixir generation

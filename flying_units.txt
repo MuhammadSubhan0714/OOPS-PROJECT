@@ -1,0 +1,5 @@
+Dragon,5,180,500,3,MEDIUM
+BabyDragon,4,120,350,3,MEDIUM
+Minions,3,90,150,2,FAST
+MegaMinion,3,140,220,2,MEDIUM
+FlyingMachine,4,130,250,6,MEDIUM
