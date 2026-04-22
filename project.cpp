@@ -26,19 +26,19 @@ class Card{
         virtual ~Card(){}
 };
 int Card :: totalCards = 0;
-class FlyingUnit{
+class FlyingUnit{    //FlyingUnits File: Name,Cost,Damage,Health,Range,Speed
     public:
         void shoot(){
             cout << "Flying Ability Used." << endl;
         }
 };
-class RangedUnit{
+class RangedUnit{    //RangedUnits File: Name,Cost,Damage,Health,Range,Speed
     public:
         void shoot(){
             cout << "Ranged Attack Used" << endl;
         }
 };
-class TroopCard: public Card{
+class TroopCard: public Card{    //Troops File: Name,Type,Cost,Damage,Health,Range,IsFlying,Speed
     protected:
         int damage;
         int health;
@@ -183,7 +183,7 @@ void SpellCard::play(Player& p){
 void BuildingCard::play(Player& p){
     cout << p.getName() << " building deployed" << endl;
 }
-class Shop{
+class Shop{    //Shop File: Name,Category,Price,UnlockLevel
     vector<Card*> shopCards;
     public:
         void addCard(Card* c){
