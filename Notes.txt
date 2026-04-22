@@ -15,9 +15,9 @@ Ranged, Flying ( DERIVATE CARD, vritual CARD)
 -- MAIN CLASSES
 Player, Card, Items, Shop, Deck
 -- SEPERATE DERIVED FILES
--- TROOPS
--- RANGED UNITS, FLYING UNITS
--- ITEMS FILE
+-- TROOPS (done)
+-- RANGED UNITS, FLYING UNITS (done)
+-- ITEMS FILE (done)
 
 ----------- SEPERATE DATA FILES ------------
 
