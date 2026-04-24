@@ -120,33 +120,23 @@ class Player{
     int playerID;
     Deck deck;      //Composition applied
     vector<Card*> collection;       //Vector of datatype Card pointer
-
-
-
     public:
         int DataLineNo;
         static bool savingData;
-
         Player() {
             ResetOrInitializeValues();
         }
-
         Player(string n) : name(n), playerID(nextPlayerID++), level(1), trophies(0), coins(500), towerHealth(1000){
-
         }
-
         Player(string n, int PID, int l, int troph, int c, int tHealth) : name(n), 
         playerID(PID) , level(l), trophies(troph), coins(c), towerHealth(tHealth){
-
         }
-
         void showPlayerData() {
             cout << "Coins: " << coins << endl;
             cout << "Trophies: " << trophies << endl;
             cout << "Level: " << level << endl;
 
         }
-
         void ResetOrInitializeValues() {
             playerID = 0;
             level = 1; 
@@ -154,7 +144,6 @@ class Player{
             coins = 500; 
             towerHealth = 1000;
         }
-
         int loadPlayer(int playerNo) {
             int choice = 0;
             do {
@@ -166,12 +155,10 @@ class Player{
                     cout << "Invalid Operation!\n";
                     continue;
                 }
-
                 if (choice == 1) {
                     cin.ignore();
                     cout << "Enter name: ";
-                    getline(cin, name);
-                    
+                    getline(cin, name);             
                     ofstream playersFILE(playerDataFileName, ios::app);
                     ofstream totalPlayers(TotalPlayersFileName);
                     if (!playersFILE || !totalPlayers) {
@@ -183,8 +170,7 @@ class Player{
                     totalPlayers << nextPlayerID;
                     playersFILE << name << "," << playerID << "," << level << "," << trophies << "," << coins << endl;
                     DataLineNo = totalDataLines++;
-                    return successLoadingPlayer;
-                    
+                    return successLoadingPlayer;                   
                 }
                 else if (choice == 2) {
                     int ID;
@@ -203,7 +189,6 @@ class Player{
                         cout << "Error opening file!\n";
                         return errorLoadingPlayer;
                     }
-
                     while (!playersFILE.eof())
                     {
                         getline(playersFILE, dataLine);
@@ -212,9 +197,7 @@ class Player{
                             stringstream ss(dataLine);
                             string n;
                             string n_ID, co, lev, troph;
-
                             int pseudoID;
-
                             getline(ss, n, dataSeperator);
                             getline(ss, n_ID, dataSeperator);
                             getline(ss, lev, dataSeperator);
@@ -233,42 +216,32 @@ class Player{
                                 DataLineNo = lineNo;
                                 return successLoadingPlayer;
                             }
-                        }
-                        
+                        }                       
                     }
-                    cout << "Player Doesn't Exist!\n";
-                    
+                    cout << "Player Doesn't Exist!\n";            
                     continue;
                 }
                 else {
                     cout << "Exiting...\n";
                     return exitLoadingPlayer;
-                }
-
-                
+                }           
             } while (choice != 3);
             return 0;
         }
-
         int saveData() {
             if (savingData) {
                 return PlayerdataAlreadySaving;
             }
             ifstream playerFILE(playerDataFileName);
             ofstream playerTEMP("playerTemp.txt");
-
             int lineNo = 0;
-
             string dataLine;
-
             if (!playerFILE || !playerTEMP) {
                 cout << "Error opening file (" << playerDataFileName << ")!\n";
                 return errorsavingPlayerData;
             }
-
             while (getline(playerFILE, dataLine)) {
-            lineNo++;
-            
+            lineNo++;           
             if (lineNo == DataLineNo) {
                 // Write updated player data
                 playerTEMP << name << "," << playerID << "," << level << "," 
@@ -285,7 +258,6 @@ class Player{
             savingData = false;
             return successSavingPlayerData;
         }
-
         void addCard(Card* c){
             collection.push_back(c);        //Adding element(Card) at runtime
         }
@@ -317,11 +289,9 @@ class Player{
                 coins -= c;
             }
         }
-
         int getID() {
             return playerID;
         }
-
         void addTrophies(int t){
             trophies += t;
             if (trophies > level*100){
@@ -348,7 +318,9 @@ class Player{
         Deck& getDeck(){
             return deck;
         }
-
+        vector<Card*>& getCollection() {      //Inorder to Unlock Cards
+            return collection;
+        }
         bool operator>(Player &p) {
             if (trophies > p.getTrophies()) {
                 return true;
@@ -421,21 +393,69 @@ class ClanGame{
             return reward;
         }
 };
+vector<Card*> loadAllCards() {
+    vector<Card*> allCards;
+    ifstream file("cards.txt");
+    string line;
+    while (getline(file, line)) {   
+        stringstream ss(line);  //Convert line into stream for parsing (for string data manipulation)
+        string name, type;
+        getline(ss, name, ',');     //Reads till comma
+        getline(ss, type, ',');
+        if (type == "TROOP") {
+            int cost, dmg, hp, range, isFlying;
+            ss >> cost; 
+            ss.ignore();
+            ss >> dmg; 
+            ss.ignore();
+            ss >> hp; 
+            ss.ignore();
+            ss >> range; 
+            ss.ignore();
+            ss >> isFlying;
+            allCards.push_back(new TroopCard(name, cost, dmg, hp));  //Dynamically create TroopCard Object and store
+        }
+        else if (type == "SPELL") {
+            int cost, dmg;
+            ss >> cost; 
+            ss.ignore();
+            ss >> dmg;
+            allCards.push_back(new SpellCard(name, cost, dmg));
+        }
+        else if (type == "BUILDING") {
+            int cost;
+            ss >> cost;
+            allCards.push_back(new BuildingCard(name, cost));
+        }
+    }
+    return allCards;
+}
 class GameEngine{
     int battleField[5][5];
     public:
-        void battle(Player& p1, Player& p2){
-            cout << "Battle Start!" << endl;
-            Card* c = p1.getDeck().drawCard();  //Drawing a card from Player 1s deck
-            if (c != nullptr){
-                c->play(p2);        //Attacks the other Player
+        void battle(Player &p1, Player &p2) {
+            cout << "===== BATTLE START =====\n";
+            int turn = 0;
+            while (p1.getHealth() > 0 && p2.getHealth() > 0) {
+                Player &attacker = (turn % 2 == 0) ? p1 : p2;
+                Player &defender = (turn % 2 == 0) ? p2 : p1;
+                cout << "\n" << attacker.getName() << "'s turn\n";
+                Card* c = attacker.getDeck().drawCard();    //Drawing a card from Attackers deck
+                if (c == nullptr) {
+                    cout << "No cards left!\n";
+                    break;
+                }
+                cout << "Playing: " << c->getName() << endl;
+                c->play(defender);      //Attacks the other Player
+                cout << defender.getName() << " Health: " << defender.getHealth() << endl;      //Displays Health after recieving an attack
+                turn++;
             }
-            if (p2.getHealth() <= 0){       //If Other Players health has been depleted then the current player has won
-                cout << p1.getName() << " wins." << endl;
-            }
+            if (p1.getHealth() > 0)     //If Other Player's health has been depleted then the current player has won
+                cout << p1.getName() << " WINS!\n";
+            else
+                cout << p2.getName() << " WINS!\n";
         }
 };
-
 int initializeBaseData() {
     ifstream t_Players(TotalPlayersFileName);
     ifstream playerData(playerDataFileName);
@@ -455,7 +475,29 @@ int initializeBaseData() {
     Player::totalDataLines = totalLines;
     return successfulGameInitialization;
 }
-
+void unlockCards(Player &p, vector<Card*> &allCards) {
+    for (Card* c : allCards) {      //Go through all available cards
+        if (p.getLevel() >= c->getCost()) {
+            bool alreadyOwned = false;
+            for (Card* owned : p.getCollection()) {     //Go through Players unlocked Cards
+                if (owned->getName() == c->getName()) {     //Checks for duplication of Card
+                    alreadyOwned = true;
+                    break;
+                }
+            }
+            if (!alreadyOwned) {
+                cout << "Unlocked: " << c->getName() << endl;
+                p.addCard(c);   //Adds card to player's collection
+            }
+        }
+    }
+}
+void autoFillDeck(Player &p) {
+    vector<Card*> &col = p.getCollection();     //Reference to player's collection
+    for (int i = 0; i < col.size() && i < 8; i++) {     //Fill deck with first 8 cards
+        p.addToDeck(col[i]);    //Add card pointer to deck
+    }
+}
 
 int main() {
     int loaded = initializeBaseData();
@@ -466,9 +508,83 @@ int main() {
     p1.loadPlayer(1);
     Player p2;
     p2.loadPlayer(2);
-    p1.showPlayerData();
-    p1.spendCoins(50);
-    p1.saveData();
-    p1.showPlayerData();
-  
+    vector<Card*> allCards = loadAllCards();
+    unlockCards(p1, allCards);
+    unlockCards(p2, allCards);
+    autoFillDeck(p1);
+    autoFillDeck(p2);
+    GameEngine game;
+    game.battle(p1, p2);
+    return 0;
+}
+int main() {
+    if (initializeBaseData() == failedGameInitialization) {
+        return 0;
+    }
+    Player p1, p2;
+    if (p1.loadPlayer(1) != successLoadingPlayer){
+        return 0;
+    }
+    if (p2.loadPlayer(2) != successLoadingPlayer){
+        return 0;   
+    }
+    vector<Card*> allCards = loadAllCards();
+    unlockCards(p1, allCards);
+    unlockCards(p2, allCards);
+    autoFillDeck(p1);
+    autoFillDeck(p2);
+    Shop shop;
+    GameEngine game;
+    int choice;
+    do {
+        cout << "\n===== MAIN MENU =====\n";
+        cout << "1. Battle\n";
+        cout << "2. Shop\n";
+        cout << "3. Clan Game\n";
+        cout << "4. Profile\n";
+        cout << "5. Save\n";
+        cout << "6. Exit\n";
+        cin >> choice;
+        switch(choice) {
+            case 1:
+                game.battle(p1, p2);
+                break;
+            case 2: {
+                shop.show();
+                int index;
+                cout << "Enter card index to buy: ";
+                cin >> index;
+                Card* bought = shop.buy(index, p1);
+                if (bought != nullptr) {
+                    p1.addCard(bought);
+                }
+                break;
+            }
+            case 3: {
+                ClanGame cg(3, 200);
+                cg.update(3);
+                if (cg.completed()) {
+                    cout << "Clan Reward Earned!\n";
+                    p1.addCoins(cg.getReward());
+                }
+                break;
+            }
+            case 4:
+                cout << "\n--- PLAYER 1 ---\n";
+                p1.showPlayerData();
+                cout << "Rank: " << p1.getRank() << endl;
+                break;
+            case 5:
+                p1.saveData();
+                p2.saveData();
+                cout << "Game Saved!\n";
+                break;
+            case 6:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice!\n";
+        }
+    } while (choice != 6);
+    return 0;
 }
