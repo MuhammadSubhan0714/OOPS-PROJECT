@@ -1,6 +1,29 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <filesystem>
+#include<sstream>
+
+//ORDER OF PLAYER DATA:
+// NAME, ID, LEVEL, TROPHIES, COINS, CARDS
+
+#define failedGameInitialization -1
+#define successfulGameInitialization 0
+
+#define playerDataFileName "playerdata.txt"
+#define TotalPlayersFileName "TotalPlayers.txt"
+
+#define errorsavingPlayerData -1
+#define PlayerdataAlreadySaving 0
+#define successSavingPlayerData 1
+
+#define errorLoadingPlayer -1
+#define exitLoadingPlayer 0
+#define successLoadingPlayer 1
+
+#define dataSeperator ','
+
 using namespace std;
 
 class Player;
@@ -92,10 +115,176 @@ class Player{
     int trophies;
     int coins;
     int towerHealth;
+    static int nextPlayerID;
+    static int totalDataLines;
+    int playerID;
     Deck deck;      //Composition applied
     vector<Card*> collection;       //Vector of datatype Card pointer
+
+
+
     public:
-        Player(string n) : name(n), level(1), trophies(0), coins(500), towerHealth(1000){}
+        int DataLineNo;
+        static bool savingData;
+
+        Player() {
+            ResetOrInitializeValues();
+        }
+
+        Player(string n) : name(n), playerID(nextPlayerID++), level(1), trophies(0), coins(500), towerHealth(1000){
+
+        }
+
+        Player(string n, int PID, int l, int troph, int c, int tHealth) : name(n), 
+        playerID(PID) , level(l), trophies(troph), coins(c), towerHealth(tHealth){
+
+        }
+
+        void showPlayerData() {
+            cout << "Coins: " << coins << endl;
+            cout << "Trophies: " << trophies << endl;
+            cout << "Level: " << level << endl;
+
+        }
+
+        void ResetOrInitializeValues() {
+            playerID = 0;
+            level = 1; 
+            trophies = 0;
+            coins = 500; 
+            towerHealth = 1000;
+        }
+
+        int loadPlayer(int playerNo) {
+            int choice = 0;
+            do {
+                cout << "============ Player " << playerNo << " ============\n";
+                cout << "(1) New Player\n(2) Existing Player\n(3) Exit\n";
+                cin >> choice;
+
+                if (choice < 1 || choice > 3) {
+                    cout << "Invalid Operation!\n";
+                    continue;
+                }
+
+                if (choice == 1) {
+                    cin.ignore();
+                    cout << "Enter name: ";
+                    getline(cin, name);
+                    
+                    ofstream playersFILE(playerDataFileName, ios::app);
+                    ofstream totalPlayers(TotalPlayersFileName);
+                    if (!playersFILE || !totalPlayers) {
+                        cout << "Error opening files (" << TotalPlayersFileName  << " or " << playerDataFileName << ")!\n";
+                        return errorLoadingPlayer;
+                    }
+                    ResetOrInitializeValues();
+                    playerID = nextPlayerID++;
+                    totalPlayers << nextPlayerID;
+                    playersFILE << name << "," << playerID << "," << level << "," << trophies << "," << coins << endl;
+                    DataLineNo = totalDataLines++;
+                    return successLoadingPlayer;
+                    
+                }
+                else if (choice == 2) {
+                    int ID;
+                    string name_;
+                    string dataLine;
+                    int lineNo = 0;
+                    cin.ignore();
+                    cout << "Enter name: ";
+                    getline(cin, name_);
+                    cout << "Enter ID: ";
+                    cin >> ID;
+                    cin.ignore();
+                    bool found;
+                    ifstream playersFILE(playerDataFileName);
+                    if (!playersFILE) {
+                        cout << "Error opening file!\n";
+                        return errorLoadingPlayer;
+                    }
+
+                    while (!playersFILE.eof())
+                    {
+                        getline(playersFILE, dataLine);
+                        lineNo++;
+                        if (dataLine != " ") {
+                            stringstream ss(dataLine);
+                            string n;
+                            string n_ID, co, lev, troph;
+
+                            int pseudoID;
+
+                            getline(ss, n, dataSeperator);
+                            getline(ss, n_ID, dataSeperator);
+                            getline(ss, lev, dataSeperator);
+                            getline(ss, troph, dataSeperator);
+                            getline(ss, co, dataSeperator);
+                            cout << "hjere1\n";
+                            pseudoID = stoi(n_ID);
+                            cout << "here2\n";
+                            if (pseudoID == ID && n == name_) {
+                                cout << "Logged In!\n";
+                                name = n;
+                                playerID = pseudoID;
+                                level = stoi(lev);
+                                coins = stoi(co);
+                                trophies = stoi(troph);
+                                DataLineNo = lineNo;
+                                return successLoadingPlayer;
+                            }
+                        }
+                        
+                    }
+                    cout << "Player Doesn't Exist!\n";
+                    
+                    continue;
+                }
+                else {
+                    cout << "Exiting...\n";
+                    return exitLoadingPlayer;
+                }
+
+                
+            } while (choice != 3);
+            return 0;
+        }
+
+        int saveData() {
+            if (savingData) {
+                return PlayerdataAlreadySaving;
+            }
+            ifstream playerFILE(playerDataFileName);
+            ofstream playerTEMP("playerTemp.txt");
+
+            int lineNo = 0;
+
+            string dataLine;
+
+            if (!playerFILE || !playerTEMP) {
+                cout << "Error opening file (" << playerDataFileName << ")!\n";
+                return errorsavingPlayerData;
+            }
+
+            while (getline(playerFILE, dataLine)) {
+            lineNo++;
+            
+            if (lineNo == DataLineNo) {
+                // Write updated player data
+                playerTEMP << name << "," << playerID << "," << level << "," 
+                        << trophies << "," << coins << endl;
+            } else {
+                // Write original line
+                playerTEMP << dataLine << endl;
+            }
+        }
+            playerFILE.close();
+            playerTEMP.close();
+            filesystem::remove(playerDataFileName);
+            filesystem::rename("playerTemp.txt", playerDataFileName);
+            savingData = false;
+            return successSavingPlayerData;
+        }
 
         void addCard(Card* c){
             collection.push_back(c);        //Adding element(Card) at runtime
@@ -128,6 +317,11 @@ class Player{
                 coins -= c;
             }
         }
+
+        int getID() {
+            return playerID;
+        }
+
         void addTrophies(int t){
             trophies += t;
             if (trophies > level*100){
@@ -164,7 +358,11 @@ class Player{
             }
         }
         friend void comparePlayers(Player& p1, Player& p2);
+        friend int initializeBaseData();
 };
+int Player::nextPlayerID = 0;
+int Player::totalDataLines =0;
+bool Player::savingData = false;
 void comparePlayers(Player& p1, Player& p2){
     if (p1.getTrophies() > p2.getTrophies()){
         cout << p1.getName() << " is ranked higher" << endl;
@@ -237,8 +435,40 @@ class GameEngine{
             }
         }
 };
+
+int initializeBaseData() {
+    ifstream t_Players(TotalPlayersFileName);
+    ifstream playerData(playerDataFileName);
+    if (!t_Players || !playerData) {
+        cout << "Failed to load Data, exiting game..\n";
+        return -1;
+    }
+    int totalLines = 0;
+    t_Players >> Player::nextPlayerID;
+    string l;
+    while (!playerData.eof())
+    {
+        getline(playerData, l);
+        totalLines++;
+    }
+
+    Player::totalDataLines = totalLines;
+    return successfulGameInitialization;
+}
+
+
 int main() {
-    Player p1("Ahmed"), p2("Ali");
-    p1.addTrophies(4);
-    p1 > p2;
+    int loaded = initializeBaseData();
+    if (loaded == failedGameInitialization) {
+        return 0;
+    }
+    Player p1;
+    p1.loadPlayer(1);
+    Player p2;
+    p2.loadPlayer(2);
+    p1.showPlayerData();
+    p1.spendCoins(50);
+    p1.saveData();
+    p1.showPlayerData();
+  
 }
