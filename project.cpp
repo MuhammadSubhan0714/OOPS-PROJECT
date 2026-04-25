@@ -1,9 +1,11 @@
+#include "Abstracts.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <filesystem>
-#include<sstream>
+#include <sstream>
 
 //ORDER OF PLAYER DATA:
 // NAME, ID, LEVEL, TROPHIES, COINS, CARDS
@@ -26,7 +28,6 @@
 
 using namespace std;
 
-class Player;
 class FlyingUnit{    //FlyingUnits File: Name,Cost,Damage,Health,Range,Speed
     public:
         void shoot(){
