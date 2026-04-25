@@ -6,14 +6,14 @@ Collection (The cards a player has unlocked)
 
 ----------- DERIVATIVE CLASSES ------------
 
-Card (Abstract)
-Ranged, Flying ( DERIVATE CARD, vritual CARD)
+Card (Abstract) (done)
+Ranged, Flying ( DERIVATE CARD, vritual CARD) (done)
 
 
 -------------- BIGGEST CLASSES --------------
 
 -- MAIN CLASSES
-Player, Card, Items, Shop, Deck
+Player, Card, Items, Shop, Deck (done)
 -- SEPERATE DERIVED FILES
 -- TROOPS (done)
 -- RANGED UNITS, FLYING UNITS (done)
