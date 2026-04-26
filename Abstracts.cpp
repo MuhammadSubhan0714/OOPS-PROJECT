@@ -1,4 +1,4 @@
-#include "Abstracts.h"
+#include "abstracts.h"
 #include <fstream>
 #include <sstream>
 #include <filesystem>
@@ -68,7 +68,7 @@ void Player::ResetOrInitializeValues() {
     playerID = 0;
     level = 1;
     trophies = 0;
-    coins = 500;
+    coins = 10;
     towerHealth = 1000;
 }
 int Player::loadPlayer(int playerNo) {
@@ -76,6 +76,7 @@ int Player::loadPlayer(int playerNo) {
     do {
         cout << "============ Player " << playerNo << " ============\n";
         cout << "(1) New Player\n(2) Existing Player\n(3) Exit\n";
+        cout << "Enter your Choice: ";
         cin >> choice;
         if (choice == 1) {
             cin.ignore();
