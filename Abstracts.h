@@ -32,15 +32,6 @@ class Deck{
         int size() const;
 };
 
-class Shop {
-private:
-    vector<Card*> shopCards;
-public:
-    void addCard(Card* c);
-    void show() const;
-    Card* buy(size_t position, Player& p);
-};
-
 class Player {
     string name;
     int level;
