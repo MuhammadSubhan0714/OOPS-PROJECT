@@ -291,7 +291,9 @@ int main()
             break;
         case 4:
             p1.saveData();
-            p2.saveData();
+            while (p2.saveData() == PlayerdataAlreadySaving) {
+                continue;
+            }
             cout << "Game Saved!\n";
             break;
         case 5:
