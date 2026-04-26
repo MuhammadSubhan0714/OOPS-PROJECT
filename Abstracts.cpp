@@ -108,22 +108,24 @@ int Player::loadPlayer(int playerNo) {
             int lineNo = 0;
             while (getline(file, line)) {
                 lineNo++;
-                stringstream ss(line);
-                string n, n_ID, lev, troph, co;
-                getline(ss, n, ',');
-                getline(ss, n_ID, ',');
-                getline(ss, lev, ',');
-                getline(ss, troph, ',');
-                getline(ss, co, ',');
-                if (stoi(n_ID) == ID && n == name_) {
-                    name = n;
-                    playerID = ID;
-                    level = stoi(lev);
-                    trophies = stoi(troph);
-                    coins = stoi(co);
-                    DataLineNo = lineNo;
-                    cout << "Logged In!\n";
-                    return successLoadingPlayer;
+                if (line != "") {
+                    stringstream ss(line);
+                    string n, n_ID, lev, troph, co;
+                    getline(ss, n, ',');
+                    getline(ss, n_ID, ',');
+                    getline(ss, lev, ',');
+                    getline(ss, troph, ',');
+                    getline(ss, co, ',');
+                    if (stoi(n_ID) == ID && n == name_) {
+                        name = n;
+                        playerID = ID;
+                        level = stoi(lev);
+                        trophies = stoi(troph);
+                        coins = stoi(co);
+                        DataLineNo = lineNo;
+                        cout << "Logged In!\n";
+                        return successLoadingPlayer;
+                    }
                 }
             }
             cout << "Player not found!\n";
@@ -133,6 +135,7 @@ int Player::loadPlayer(int playerNo) {
 }
 int Player::saveData() {
     if (savingData) return PlayerdataAlreadySaving;
+    savingData = true;
     ifstream in(playerDataFileName);
     ofstream out("temp.txt");
     string line;
@@ -150,6 +153,7 @@ int Player::saveData() {
     out.close();
     filesystem::remove(playerDataFileName);
     filesystem::rename("temp.txt", playerDataFileName);
+    savingData = false;
     return successSavingPlayerData;
 }
 void Player::addCard(Card* c) {

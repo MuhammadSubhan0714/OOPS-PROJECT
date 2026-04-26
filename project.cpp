@@ -103,34 +103,41 @@ vector<Card*> loadAllCards() {
     ifstream file("cards.txt");
     string line;
     while (getline(file, line)) {   
-        stringstream ss(line);  //Convert line into stream for parsing (for string data manipulation)
-        string name, type;
-        getline(ss, name, ',');     //Reads till comma
-        getline(ss, type, ',');
-        if (type == "TROOP") {
-            int cost, dmg, hp, range, isFlying;
-            ss >> cost; 
-            ss.ignore();
-            ss >> dmg; 
-            ss.ignore();
-            ss >> hp; 
-            ss.ignore();
-            ss >> range; 
-            ss.ignore();
-            ss >> isFlying;
-            allCards.push_back(new TroopCard(name, cost, dmg, hp));  //Dynamically create TroopCard Object and store
-        }
-        else if (type == "SPELL") {
-            int cost, dmg;
-            ss >> cost; 
-            ss.ignore();
-            ss >> dmg;
-            allCards.push_back(new SpellCard(name, cost, dmg));
-        }
-        else if (type == "BUILDING") {
-            int cost;
-            ss >> cost;
-            allCards.push_back(new BuildingCard(name, cost));
+        if (line != "") {
+            stringstream ss(line);  //Convert line into stream for parsing (for string data manipulation)
+            string name, type, co, dam, health, ra, isFLY;
+            getline(ss, name, ',');     //Reads till comma
+            getline(ss, type, ',');
+            getline(ss, co, ',');
+            getline(ss, dam, ',');
+            getline(ss, health, ',');
+            getline(ss, ra, ',');
+            getline(ss, isFLY, ',');
+            int cost, dmg, hp, range;
+            bool isFlying;
+            if (type == "TROOP") {
+                
+                cost = stoi(co);
+                dmg = stoi(dam);
+                hp = stoi(health);
+                range = stoi(ra);
+                isFLY = stoi(isFLY);
+                
+                allCards.push_back(new TroopCard(name, cost, dmg, hp));  //Dynamically create TroopCard Object and store
+            }
+            else if (type == "SPELL") {
+               
+                cost = stoi(co);
+                dmg = stoi(dam); 
+                
+                allCards.push_back(new SpellCard(name, cost, dmg));
+            }
+            else if (type == "BUILDING") {
+               
+                cost = stoi(co);
+                
+                allCards.push_back(new BuildingCard(name, cost));
+            }
         }
     }
     return allCards;
@@ -163,7 +170,7 @@ class GameEngine{
 };
 void unlockCards(Player &p, vector<Card*> &allCards) {
     for (Card* c : allCards) {      //Go through all available cards
-        if (p.getLevel() >= c->getCost()) {
+        if (p.getCoins() >= c->getCost()) {
             bool alreadyOwned = false;
             for (Card* owned : p.getCollection()) {     //Go through Players unlocked Cards
                 if (owned->getName() == c->getName()) {     //Checks for duplication of Card
