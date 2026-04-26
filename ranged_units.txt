@@ -1,5 +1,5 @@
-Archer,3,80,200,5,FAST
-Wizard,5,150,300,4,MEDIUM
-SpearGoblins,2,70,120,4,FAST
-Musketeer,4,160,350,6,MEDIUM
-BabyDragon,4,120,350,3,MEDIUM
+Archer,3,80,200,5
+Wizard,5,150,300,4
+SpearGoblins,2,70,120,4
+Musketeer,4,160,350,6
+BabyDragon,4,120,350,3
