@@ -6,6 +6,7 @@
 #include <fstream>
 #include <filesystem>
 #include <sstream>
+#include <cmath>
 
 // ORDER OF PLAYER DATA:
 //  NAME, ID, LEVEL, TROPHIES, COINS, CARDS
@@ -53,10 +54,7 @@ protected:
 public:
     TroopCard(string n, int c, int d, int h) : Card(n, c), damage(d), health(h) {}
     void play(Player &p) override;
-    int getDamage() const
-    {
-        return damage;
-    }
+    int getDamage() override;
     bool operator>(TroopCard &tc)
     {
         if (damage > tc.damage)
@@ -73,6 +71,7 @@ class SpellCard : public Card
 public:
     SpellCard(string n, int c, int d) : Card(n, c), spellDamage(d) {}
     void play(Player &p) override;
+    int getDamage() override;
 };
 class BuildingCard : public Card
 {
@@ -85,10 +84,18 @@ void TroopCard::play(Player &p)
     cout << name << " is attacking tower with damage of " << damage << endl;
     p.takeDamage(damage);
 }
+
+int TroopCard::getDamage() {
+    return damage;
+}
 void SpellCard::play(Player &p)
 {
     cout << name << " Struck tower with damage of " << spellDamage << endl;
     p.takeDamage(spellDamage);
+}
+
+int SpellCard::getDamage() {
+    return spellDamage;
 }
 void BuildingCard::play(Player &p)
 {
@@ -180,21 +187,25 @@ public:
         int turn = 0;
         while (p1.getHealth() > 0 && p2.getHealth() > 0)
         {
+            int choice;
             Player &attacker = (turn % 2 == 0) ? p1 : p2;
             Player &defender = (turn % 2 == 0) ? p2 : p1;
-            cout << "\n"
-                 << attacker.getName() << "'s turn\n";
-            Card *c = attacker.getDeck().drawCard(); // Drawing a card from Attackers deck
+            cout << "\n" << attacker.getName() << "'s turn\n";
+            attacker.showDeck();
+            cout << "Enter number to play the card: ";
+            cin >> choice;
+            Card *c = attacker.getDeck().drawCard(choice); // Drawing a card from Attackers deck
             if (c == nullptr)
             {
                 cout << "No cards left!\n";
                 break;
             }
-            cout << "Playing: " << c->getName() << endl;
+            cout << "\nPlaying: " << c->getName() << endl;
             c->play(defender);                                                         // Attacks the other Player
             cout << defender.getName() << " Health: " << defender.getHealth() << endl; // Displays Health after recieving an attack
             turn++;
         }
+        cout << endl;
         if (p1.getHealth() > 0) // If Other Player's health has been depleted then the current player has won
             cout << p1.getName() << " WINS!\n";
         else
@@ -287,7 +298,8 @@ int main()
         case 3:
             cout << "\n--- PLAYER 1 ---\n";
             p1.showPlayerData();
-            cout << "Rank: " << p1.getRank() << endl;
+            cout << "\n--- PLAYER 2 ---\n";
+            p2.showPlayerData();
             break;
         case 4:
             p1.saveData();
@@ -297,6 +309,11 @@ int main()
             cout << "Game Saved!\n";
             break;
         case 5:
+            p1.saveData();
+            while (p2.saveData() == PlayerdataAlreadySaving) {
+                continue;
+            }
+            cout << "Game Saved!\n";
             cout << "Exiting...\n";
             break;
         default:
