@@ -22,6 +22,7 @@ class Card{
         string getName() const;
         int getCost() const;
         static int getTotalCards();
+        virtual int getDamage();
         virtual ~Card();
 };
 class Deck{
@@ -29,7 +30,9 @@ class Deck{
     public:
         void addCard(Card* c);
         Card* drawCard();
+        Card* drawCard(int i);
         int size() const;
+        void displayDeck();
 };
 
 class Player {
@@ -67,6 +70,7 @@ public:
     string getRank();
     string getName();
     Deck& getDeck();
+    void showDeck();
     vector<Card*>& getCollection();     //Inorder to Unlock Cards
     bool operator>(Player &p);
     friend void comparePlayers(Player& p1, Player& p2);
