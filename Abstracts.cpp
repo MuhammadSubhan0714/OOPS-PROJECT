@@ -32,6 +32,10 @@ int Card::getCost() const{
 int Card::getTotalCards(){
     return totalCards;
 }
+
+int Card::getDamage() {
+    return 0;
+}
 Card::~Card(){}
 
 void Deck::addCard(Card* c) {
@@ -39,6 +43,22 @@ void Deck::addCard(Card* c) {
         cards.push_back(c);
     }
 }
+Card* Deck::drawCard(int i) {
+    if (i  <= 0) {
+        i= -i;
+    }
+    if (i > (cards.size()-1)) {
+        i = cards.size()-1;
+    }
+    if (cards.empty()) {
+        return nullptr;
+    }
+    Card* c = cards[i];
+    cards[i] = move(cards.back());
+    cards.pop_back();
+    return c;
+}
+
 Card* Deck::drawCard() {
     if (cards.empty()) {
         return nullptr;
@@ -51,6 +71,15 @@ int Deck::size() const {
     return cards.size();
 }
 
+void Deck::displayDeck() {
+    cout << "---- DECK -----\n";
+    int count = 0;
+    for (Card *c : cards) {
+        cout << count  << ": " <<  c->getName() << " D(" << c->getDamage() << ")\n";
+        count++;
+    }
+}
+
 int Player::nextPlayerID = 0;
 int Player::totalDataLines = 0;
 bool Player::savingData = false;
@@ -60,9 +89,11 @@ Player::Player() {
 Player::Player(string n): name(n), playerID(nextPlayerID++), level(1),trophies(0), coins(500), towerHealth(1000) {}
 Player::Player(string n, int PID, int l, int troph, int c, int tHealth): name(n), playerID(PID), level(l),trophies(troph), coins(c), towerHealth(tHealth) {}
 void Player::showPlayerData() {
+    cout << "Name: " << name << endl;
     cout << "Coins: " << coins << endl;
     cout << "Trophies: " << trophies << endl;
     cout << "Level: " << level << endl;
+    cout << "Rank: " << getRank() << endl;
 }
 void Player::ResetOrInitializeValues() {
     playerID = 0;
@@ -136,6 +167,7 @@ int Player::loadPlayer(int playerNo) {
 }
 int Player::saveData() {
     if (savingData) return PlayerdataAlreadySaving;
+    cout << "Saving Player " << name << "'s data...\n";
     savingData = true;
     ifstream in(playerDataFileName);
     ofstream out("temp.txt");
@@ -165,6 +197,9 @@ void Player::addToDeck(Card* c) {
 }
 void Player::takeDamage(int d) {
     towerHealth -= d;
+    if (towerHealth < 0) {
+        towerHealth = 0;
+    }
 }
 int Player::getHealth() const{ 
     return towerHealth; 
@@ -185,6 +220,10 @@ string Player::getName(){
 }
 Deck& Player::getDeck(){ 
     return deck; 
+}
+
+void Player::showDeck() {
+    deck.displayDeck();
 }
 vector<Card*>& Player::getCollection() { 
     return collection; 
