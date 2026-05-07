@@ -1,5 +1,5 @@
 ----------------- Errors -------------
-once the first battle is finished, the deck doesnt seems to get refilled(Even after exiting and logging In). 
+once the first battle is finished, the deck doesnt seems to get refilled(Even after exiting and logging In).  (done)
 Why is it asking ID, when loading existing player (It should search by itself). (done)
 Win condition needs be rechecked.
 
