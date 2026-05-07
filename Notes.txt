@@ -1,7 +1,7 @@
 ----------------- Errors -------------
-once the first battle is finished, the deck doesnt seems to get refilled(Even after exiting and logging In).  (done)
+once the first battle is finished, the deck doesnt seems to get refilled(Even after exiting and logging In).  (done) Added restoreCollection, clear, Build Deck function to select deck from collection.
 Why is it asking ID, when loading existing player (It should search by itself). (done)
-Win condition needs be rechecked.
+Win condition needs be rechecked. (done)
 
 
 ----------- SAVED DATA ----------------
