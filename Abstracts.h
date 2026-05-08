@@ -33,8 +33,9 @@ class Deck{
         Card* drawCard(int i);
         int size() const;
         void displayDeck();
+        void clear();
+        bool contains(Card* c) const;
 };
-
 class Player {
     string name;
     int level;
@@ -71,12 +72,11 @@ public:
     string getName();
     Deck& getDeck();
     void showDeck();
+    void resetBattleStats();
     vector<Card*>& getCollection();     //Inorder to Unlock Cards
     bool operator>(Player &p);
     friend void comparePlayers(Player& p1, Player& p2);
     friend int initializeBaseData();
 };
-
 int initializeBaseData();
-
 #endif
