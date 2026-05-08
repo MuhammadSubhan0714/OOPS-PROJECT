@@ -17,7 +17,6 @@
 
 #define successfulGameInitialization 0
 
-
 int Card::totalCards = 0;
 
 Card::Card(string n, int c) : name(n), cost(c){
@@ -37,7 +36,6 @@ int Card::getDamage() {
     return 0;
 }
 Card::~Card(){}
-
 void Deck::addCard(Card* c) {
     if (cards.size() < 8) {
         cards.push_back(c);
@@ -58,7 +56,6 @@ Card* Deck::drawCard(int i) {
     cards.pop_back();
     return c;
 }
-
 Card* Deck::drawCard() {
     if (cards.empty()) {
         return nullptr;
@@ -70,7 +67,6 @@ Card* Deck::drawCard() {
 int Deck::size() const {
     return cards.size();
 }
-
 void Deck::displayDeck() {
     cout << "---- DECK -----\n";
     int count = 0;
@@ -79,7 +75,17 @@ void Deck::displayDeck() {
         count++;
     }
 }
-
+void Deck::clear(){
+    cards.clear();
+}
+bool Deck::contains(Card* c) const{
+    for (Card* existing: cards){
+        if (existing == c){
+            return true;
+        }
+    }
+    return false;
+}
 int Player::nextPlayerID = 0;
 int Player::totalDataLines = 0;
 bool Player::savingData = false;
@@ -133,8 +139,6 @@ int Player::loadPlayer(int playerNo) {
             cin.ignore();
             cout << "Enter name: ";
             getline(cin, name_);
-            cout << "Enter ID: ";
-            cin >> ID;
             ifstream file(playerDataFileName);
             string line;
             int lineNo = 0;
@@ -148,9 +152,9 @@ int Player::loadPlayer(int playerNo) {
                     getline(ss, lev, ',');
                     getline(ss, troph, ',');
                     getline(ss, co, ',');
-                    if (stoi(n_ID) == ID && n == name_) {
+                    if (n == name_) {
                         name = n;
-                        playerID = ID;
+                        playerID = stoi(n_ID);
                         level = stoi(lev);
                         trophies = stoi(troph);
                         coins = stoi(co);
@@ -224,6 +228,9 @@ Deck& Player::getDeck(){
 
 void Player::showDeck() {
     deck.displayDeck();
+}
+void Player::resetBattleStats(){
+    towerHealth = 1000;
 }
 vector<Card*>& Player::getCollection() { 
     return collection; 
