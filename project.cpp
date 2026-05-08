@@ -176,6 +176,43 @@ vector<Card *> loadAllCards()
     }
     return allCards;
 }
+void autoFillDeck(Player &p)
+{
+    p.getDeck().clear();    //This clears the deck before every battle.
+    vector<Card *> &col = p.getCollection(); // Reference to player's collection
+    for (int i = 0; i < col.size() && i < 8; i++)
+    {                        // Fill deck with first 8 cards
+        p.addToDeck(col[i]); // Add card pointer to deck
+    }
+}
+void buildDeck(Player& p){
+    p.getDeck().clear();
+    vector<Card*> &col = p.getCollection();
+    if (col.empty()){
+        cout << "No unlocked cards available" << endl;
+    }
+    cout << "BUILD DECK: " << p.getName() << endl;
+    for (int i = 0; i < col.size(); i++){
+        cout << i << ". " << col[i]->getName() << " D(" << col[i]->getDamage() << ")" << endl;
+    }
+    int chosen = 0;
+    while (p.getDeck().size() < 8 && chosen < col.size()){
+        int choice;
+        cout << "Choose card #" << (p.getDeck().size() + 1) << ": ";
+        cin >> choice;
+        if (choice < 0 || choice >= col.size()){
+            cout << "Invalid Choice" << endl;
+            continue;
+        }
+        if (p.getDeck().contains(col[choice])){
+            cout << "Card already selected" << endl;
+            continue;
+        }
+        p.addToDeck(col[choice]);
+        cout << col[choice]->getName() << " added to deck" << endl;
+        chosen++;
+    }
+}
 class GameEngine
 {
     int battleField[5][5];
@@ -206,10 +243,16 @@ public:
             turn++;
         }
         cout << endl;
-        if (p1.getHealth() > 0) // If Other Player's health has been depleted then the current player has won
+        if (p1.getHealth() > p2.getHealth()) // If Other Player's health has been depleted then the current player has won
             cout << p1.getName() << " WINS!\n";
-        else
+        else if (p1.getHealth() < p2.getHealth())
             cout << p2.getName() << " WINS!\n";
+        else 
+            cout << "IT'S A TIE" << endl;
+        p1.resetBattleStats();  //Restores tower health to original value;
+        p2.resetBattleStats();
+        autoFillDeck(p1);   //Making deck available in each battle.
+        autoFillDeck(p2);
     }
 };
 void unlockCards(Player &p, vector<Card *> &allCards)
@@ -237,15 +280,12 @@ void unlockCards(Player &p, vector<Card *> &allCards)
         }
     }
 }
-void autoFillDeck(Player &p)
-{
-    vector<Card *> &col = p.getCollection(); // Reference to player's collection
-    for (int i = 0; i < col.size() && i < 8; i++)
-    {                        // Fill deck with first 8 cards
-        p.addToDeck(col[i]); // Add card pointer to deck
+void restoreCollection(Player&p, vector<Card*> &allCards){      //Everytime a existing player logs in, deck restores previous deck
+    p.getCollection().clear();
+    for (Card* c: allCards){
+        p.addCard(c);
     }
 }
-
 int main()
 {
     if (initializeBaseData() == failedGameInitialization)
@@ -264,8 +304,12 @@ int main()
     vector<Card *> allCards = loadAllCards();
     unlockCards(p1, allCards);
     unlockCards(p2, allCards);
-    autoFillDeck(p1);
-    autoFillDeck(p2);
+    // restoreCollection(p1,allCards);
+    // restoreCollection(p2,allCards);
+    // autoFillDeck(p1);
+    // autoFillDeck(p2);
+    buildDeck(p1);
+    buildDeck(p2);
     GameEngine game;
     int choice;
     do
@@ -283,6 +327,10 @@ int main()
         {
         case 1:
             game.battle(p1, p2);
+            p1.resetBattleStats();
+            p2.resetBattleStats();
+            buildDeck(p1);
+            buildDeck(p2);
             break;
         case 2:
         {
