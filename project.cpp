@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <sstream>
 #include <cmath>
+#include <limits>
 
 // ORDER OF PLAYER DATA:
 //  NAME, ID, LEVEL, TROPHIES, COINS, CARDS
@@ -199,18 +200,24 @@ void buildDeck(Player& p){
     while (p.getDeck().size() < 8 && chosen < col.size()){
         int choice;
         cout << "Choose card #" << (p.getDeck().size() + 1) << ": ";
-        cin >> choice;
-        if (choice < 0 || choice >= col.size()){
+        if (cin >>  choice) {
+            if (choice < 0 || choice >= col.size()){
             cout << "Invalid Choice" << endl;
             continue;
+            }
+            if (p.getDeck().contains(col[choice])){
+                cout << "Card already selected" << endl;
+                continue;
+            }
+            p.addToDeck(col[choice]);
+            cout << col[choice]->getName() << " added to deck" << endl;
+            chosen++;
+            }
+        else {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid Choice!\n";
         }
-        if (p.getDeck().contains(col[choice])){
-            cout << "Card already selected" << endl;
-            continue;
-        }
-        p.addToDeck(col[choice]);
-        cout << col[choice]->getName() << " added to deck" << endl;
-        chosen++;
     }
 }
 class GameEngine
@@ -227,26 +234,49 @@ public:
             int choice;
             Player &attacker = (turn % 2 == 0) ? p1 : p2;
             Player &defender = (turn % 2 == 0) ? p2 : p1;
+            if (turn == 0) {
+                cout << defender.getName() << " Health: " << defender.getHealth() << endl;
+                cout << attacker.getName() << " Health: " << defender.getHealth() << endl;
+            }
             cout << "\n" << attacker.getName() << "'s turn\n";
             attacker.showDeck();
             cout << "Enter number to play the card: ";
-            cin >> choice;
-            Card *c = attacker.getDeck().drawCard(choice); // Drawing a card from Attackers deck
-            if (c == nullptr)
-            {
-                cout << "No cards left!\n";
-                break;
+            if (cin >> choice) {
+                Card *c = attacker.getDeck().drawCard(choice); // Drawing a card from Attackers deck
+                if (c == nullptr)
+                {
+                    cout << "No cards left!\n";
+                    break;
+                }
+                cout << "\nPlaying: " << c->getName() << endl;
+                c->play(defender);                                                         // Attacks the other Player
+                cout << "\n" << defender.getName() << " Health: " << defender.getHealth() << endl;
+                cout << attacker.getName() << " Health: " << attacker.getHealth() << endl; // Displays Health after recieving an attack
+                turn++;
             }
-            cout << "\nPlaying: " << c->getName() << endl;
-            c->play(defender);                                                         // Attacks the other Player
-            cout << defender.getName() << " Health: " << defender.getHealth() << endl; // Displays Health after recieving an attack
-            turn++;
+            else {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid Choice!\n";
+            }
         }
         cout << endl;
         if (p1.getHealth() > p2.getHealth()) // If Other Player's health has been depleted then the current player has won
-            cout << p1.getName() << " WINS!\n";
+            {cout << p1.getName() << " WINS!\n";
+            p1.addCoins(150);
+            p1.saveData();
+            while (p2.saveData() == PlayerdataAlreadySaving) {
+                continue;
+            }
+        }
         else if (p1.getHealth() < p2.getHealth())
-            cout << p2.getName() << " WINS!\n";
+            {cout << p2.getName() << " WINS!\n";
+            p2.addCoins(150);
+            p1.saveData();
+            while (p2.saveData() == PlayerdataAlreadySaving) {
+                continue;
+            }
+        }
         else 
             cout << "IT'S A TIE" << endl;
         p1.resetBattleStats();  //Restores tower health to original value;
@@ -311,62 +341,90 @@ int main()
     buildDeck(p1);
     buildDeck(p2);
     GameEngine game;
+    ClanGame cg(3, 200);
     int choice;
     do
     {
         cout << "\n===== MAIN MENU =====\n";
         cout << "1. Battle\n";
-        ;
-        cout << "2. Clan Game\n";
+        cout << "2. Rewards\n";
         cout << "3. Profile\n";
         cout << "4. Save\n";
         cout << "5. Exit\n";
         cout << "Enter your Choice: ";
-        cin >> choice;
-        switch (choice)
-        {
-        case 1:
-            game.battle(p1, p2);
-            p1.resetBattleStats();
-            p2.resetBattleStats();
-            buildDeck(p1);
-            buildDeck(p2);
-            break;
-        case 2:
-        {
-            ClanGame cg(3, 200);
-            cg.update(3);
-            if (cg.completed())
+        if (cin >> choice) {
+            switch (choice)
             {
-                cout << "Clan Reward Earned!\n";
-                p1.addCoins(cg.getReward());
+            case 1:
+                game.battle(p1, p2);
+                p1.resetBattleStats();
+                p2.resetBattleStats();
+                buildDeck(p1);
+                buildDeck(p2);
+                break;
+            case 2:
+                if (cg.completed())
+                {
+                    cout << "\nRewards already earned!\n";
+                }
+                else 
+                {
+                    cg.update(3);
+                    int ch;
+                    do {
+                        cout << "\nPlayer:\n(1) 1\n(2) 2\n";
+                        if (cin >> ch) {
+                            if (ch == 1) {
+                            cout << "Clan Reward Earned!\n";
+                            p1.addCoins(cg.getReward());
+                            }
+                            else if (ch== 2) {
+                                cout << "Clan Reward Earned!\n";
+                                p2.addCoins(cg.getReward());
+                            }
+                            else {
+                                cout << "Invalid choice!\n";
+                            }
+                        }
+                        else {
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                            cout << "Invalid choice!\n";
+                        }
+                    } while (ch != 1 && ch != 2);
+                }
+                break;
+            case 3:
+                cout << "\n--- PLAYER 1 ---\n";
+                p1.showPlayerData();
+                cout << "\n--- PLAYER 2 ---\n";
+                p2.showPlayerData();
+                break;
+            case 4:
+                p1.saveData();
+                while (p2.saveData() == PlayerdataAlreadySaving) {
+                    continue;
+                }
+                cout << "Game Saved!\n";
+                break;
+            case 5:
+                p1.saveData();
+                while (p2.saveData() == PlayerdataAlreadySaving) {
+                    continue;
+                }
+                cout << "Game Saved!\n";
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice!\n";
             }
-            break;
         }
-        case 3:
-            cout << "\n--- PLAYER 1 ---\n";
-            p1.showPlayerData();
-            cout << "\n--- PLAYER 2 ---\n";
-            p2.showPlayerData();
-            break;
-        case 4:
-            p1.saveData();
-            while (p2.saveData() == PlayerdataAlreadySaving) {
-                continue;
-            }
-            cout << "Game Saved!\n";
-            break;
-        case 5:
-            p1.saveData();
-            while (p2.saveData() == PlayerdataAlreadySaving) {
-                continue;
-            }
-            cout << "Game Saved!\n";
-            cout << "Exiting...\n";
-            break;
-        default:
+        else {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Invalid choice!\n";
         }
+        
     } while (choice != 5);
     return 0;
 }

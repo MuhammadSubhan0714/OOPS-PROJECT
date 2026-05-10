@@ -114,57 +114,63 @@ int Player::loadPlayer(int playerNo) {
         cout << "============ Player " << playerNo << " ============\n";
         cout << "(1) New Player\n(2) Existing Player\n(3) Exit\n";
         cout << "Enter your Choice: ";
-        cin >> choice;
-        if (choice == 1) {
-            cin.ignore();
-            cout << "Enter name: ";
-            getline(cin, name);
-            ofstream playersFILE(playerDataFileName, ios::app);
-            ofstream totalPlayers(TotalPlayersFileName);
-            if (!playersFILE || !totalPlayers) {
-                cout << "File error!\n";
-                return errorLoadingPlayer;
+        if (cin >> choice) {
+            if (choice == 1) {
+                cin.ignore();
+                cout << "Enter name: ";
+                getline(cin, name);
+                ofstream playersFILE(playerDataFileName, ios::app);
+                ofstream totalPlayers(TotalPlayersFileName);
+                if (!playersFILE || !totalPlayers) {
+                    cout << "File error!\n";
+                    return errorLoadingPlayer;
+                }
+                ResetOrInitializeValues();
+                playerID = nextPlayerID++;
+                totalPlayers << nextPlayerID;
+                playersFILE << name << "," << playerID << "," << level
+                            << "," << trophies << "," << coins << endl;
+                DataLineNo = totalDataLines++;
+                return successLoadingPlayer;
             }
-            ResetOrInitializeValues();
-            playerID = nextPlayerID++;
-            totalPlayers << nextPlayerID;
-            playersFILE << name << "," << playerID << "," << level
-                        << "," << trophies << "," << coins << endl;
-            DataLineNo = totalDataLines++;
-            return successLoadingPlayer;
-        }
-        else if (choice == 2) {
-            string name_;
-            int ID;
-            cin.ignore();
-            cout << "Enter name: ";
-            getline(cin, name_);
-            ifstream file(playerDataFileName);
-            string line;
-            int lineNo = 0;
-            while (getline(file, line)) {
-                lineNo++;
-                if (line != "") {
-                    stringstream ss(line);
-                    string n, n_ID, lev, troph, co;
-                    getline(ss, n, ',');
-                    getline(ss, n_ID, ',');
-                    getline(ss, lev, ',');
-                    getline(ss, troph, ',');
-                    getline(ss, co, ',');
-                    if (n == name_) {
-                        name = n;
-                        playerID = stoi(n_ID);
-                        level = stoi(lev);
-                        trophies = stoi(troph);
-                        coins = stoi(co);
-                        DataLineNo = lineNo;
-                        cout << "Logged In!\n";
-                        return successLoadingPlayer;
+            else if (choice == 2) {
+                string name_;
+                int ID;
+                cin.ignore();
+                cout << "Enter name: ";
+                getline(cin, name_);
+                ifstream file(playerDataFileName);
+                string line;
+                int lineNo = 0;
+                while (getline(file, line)) {
+                    lineNo++;
+                    if (line != "") {
+                        stringstream ss(line);
+                        string n, n_ID, lev, troph, co;
+                        getline(ss, n, ',');
+                        getline(ss, n_ID, ',');
+                        getline(ss, lev, ',');
+                        getline(ss, troph, ',');
+                        getline(ss, co, ',');
+                        if (n == name_) {
+                            name = n;
+                            playerID = stoi(n_ID);
+                            level = stoi(lev);
+                            trophies = stoi(troph);
+                            coins = stoi(co);
+                            DataLineNo = lineNo;
+                            cout << "Logged In!\n";
+                            return successLoadingPlayer;
+                        }
                     }
                 }
+                cout << "Player not found!\n";
             }
-            cout << "Player not found!\n";
+        }
+        else {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid choice!\n";
         }
     } while (choice != 3);
     return exitLoadingPlayer;
