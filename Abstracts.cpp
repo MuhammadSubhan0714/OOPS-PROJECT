@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <cstdlib>
 
 #define playerDataFileName "playerdata.txt"
 #define TotalPlayersFileName "TotalPlayers.txt"
@@ -96,7 +97,7 @@ Player::Player(string n): name(n), playerID(nextPlayerID++), level(1),trophies(0
 Player::Player(string n, int PID, int l, int troph, int c, int tHealth): name(n), playerID(PID), level(l),trophies(troph), coins(c), towerHealth(tHealth) {}
 void Player::showPlayerData() {
     cout << "Name: " << name << endl;
-    cout << "Coins: " << coins << endl;
+    cout << "Coins: " << coins + og_coins << endl;
     cout << "Trophies: " << trophies << endl;
     cout << "Level: " << level << endl;
     cout << "Rank: " << getRank() << endl;
@@ -128,6 +129,7 @@ int Player::loadPlayer(int playerNo) {
                 ResetOrInitializeValues();
                 playerID = nextPlayerID++;
                 totalPlayers << nextPlayerID;
+                og_coins = coins;
                 playersFILE << name << "," << playerID << "," << level
                             << "," << trophies << "," << coins << endl;
                 DataLineNo = totalDataLines++;
@@ -159,6 +161,7 @@ int Player::loadPlayer(int playerNo) {
                             trophies = stoi(troph);
                             coins = stoi(co);
                             DataLineNo = lineNo;
+                            og_coins = coins;
                             cout << "Logged In!\n";
                             return successLoadingPlayer;
                         }
@@ -183,11 +186,12 @@ int Player::saveData() {
     ofstream out("temp.txt");
     string line;
     int lineNo = 0;
+    int newCoins = coins + og_coins;
     while (getline(in, line)) {
         lineNo++;
 
         if (lineNo == DataLineNo) {
-            out << name << "," << playerID << "," << level << "," << trophies << "," << coins << endl;
+            out << name << "," << playerID << "," << level << "," << trophies << "," << newCoins << endl;
         } else {
             out << line << endl;
         }
@@ -199,11 +203,16 @@ int Player::saveData() {
     savingData = false;
     return successSavingPlayerData;
 }
+
 void Player::addCard(Card* c) {
     collection.push_back(c);
 }
 void Player::addToDeck(Card* c) {
     deck.addCard(c);
+}
+
+void Player::fixCoinData() {
+    og_coins -= coins;
 }
 void Player::takeDamage(int d) {
     towerHealth -= d;

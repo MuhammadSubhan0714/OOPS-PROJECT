@@ -309,6 +309,7 @@ void unlockCards(Player &p, vector<Card *> &allCards)
             }
         }
     }
+    p.fixCoinData();
 }
 void restoreCollection(Player&p, vector<Card*> &allCards){      //Everytime a existing player logs in, deck restores previous deck
     p.getCollection().clear();

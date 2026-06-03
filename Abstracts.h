@@ -41,6 +41,7 @@ class Player {
     int level;
     int trophies;
     int coins;
+    int og_coins;
     int towerHealth;
     static int nextPlayerID;
     static int totalDataLines;
@@ -57,6 +58,7 @@ public:
     void ResetOrInitializeValues();
     int loadPlayer(int playerNo);
     int saveData();
+    void fixCoinData();
     void addCard(Card* c);      //Adding element(Card) at runtime
     void addToDeck(Card* c);
     void takeDamage(int d);
